@@ -1,6 +1,6 @@
-# 🕵️‍♂️ Detector de Copias de TPs (Anti-Machete)
+# 🕵️‍♂️ Detector de Copias de documentos o trabajos prácticos (Anti-Machete 🪓)
 
-Bienvenido al **Detector de Copias**. Este script es una herramienta diseñada para identificar trabajos prácticos con similitudes sospechosas. Es ideal para analizar lotes de entregas y detectar posibles casos de plagio o "inspiración compartida" no atribuida.
+Bienvenido al **Detector de Copias**. Este script es una herramienta diseñada para identificar documentos con similitudes sospechosas. Es ideal para analizar lotes de entregas y detectar posibles casos de plagio o "inspiración compartida" no atribuida.
 
 ## ¿Cómo funciona?
 
