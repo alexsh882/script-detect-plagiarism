@@ -1,0 +1,11 @@
+[project]
+name = "script-detect-copy"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pypdf>=6.4.0",
+    "python-docx>=1.2.0",
+    "scikit-learn>=1.7.2",
+]
