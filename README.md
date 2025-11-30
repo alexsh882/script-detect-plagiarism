@@ -66,6 +66,8 @@ Modo por defecto: SMART
   - Fase 2: Análisis de oraciones SOLO en pares sospechosos (35-70% similitud)
 - **Cuándo usar**: Uso general, mejor balance velocidad/precisión
 
+**NOTA**: El modo SMART es el más recomendado ya que balancea entre velocidad y precisión. El tiempo estimado es aproximado y puede variar según la cantidad de archivos y la velocidad de tu computadora.
+
 ## ⚙️ Configuración Importante
 
 ### Filtros de Contenido (en `constants.py`)
@@ -104,7 +106,7 @@ SMART_MODE_MAX_SIMILARITY = 0.70  # Límite superior
 Si no tenés `uv` instalado:
 
 ```powershell
-pip install uv
+pip install uv # o de la forma que te complace
 ```
 
 ### 2. Instalación de Dependencias
@@ -137,14 +139,14 @@ Los resultados se muestran en consola y se guardan automáticamente en `output/r
 **Detección por TF-IDF:**
 
 ```
-🔴 97.00% :: antonela-lezcano.pdf <--> heredia-2.docx
+🔴 97.00% :: archivo1.pdf <--> archivo2.docx
    📄 Detectado por: TF-IDF (similitud documental)
 ```
 
 **Detección por Análisis de Oraciones:**
 
 ```
-🔴 Detectado :: alan-riquelme.pdf <--> tiziano-vera.pdf
+🔴 Detectado :: archivo3.pdf <--> archivo4.docx
    📝 Detectado por: Análisis de oraciones
    📊 Sentence-level analysis:
       - Total matches: 12
@@ -190,7 +192,7 @@ Genera reporte completo con todas las métricas
 
 ## 🛠️ Debug Mode
 
-Si necesitás ver los textos procesados, activá el modo debug en `main.py`:
+Si necesitás ver los textos procesados, activá el modo debug en `constants.py`:
 
 ```python
 DEBUG_MODE = True

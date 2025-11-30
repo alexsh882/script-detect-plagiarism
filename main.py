@@ -22,38 +22,37 @@ from config import (
     SHOW_DETAILED_SENTENCE_MATCHES,
     SMART_MODE_MIN_SIMILARITY,
 )
-from constants import COMMON_PHRASES, END_MARKERS, STOP_WORDS_ES
+from constants import COMMON_PHRASES, DEBUG_MODE, END_MARKERS, STOP_WORDS_ES
 from sentence_detector import (
     find_matching_sentences,
     format_sentence_match_report,
     is_plagiarism_detected,
 )
 
-# --- CONFIGURATION ---
+# --- CONFIGURACIÓN ---
 FILES_DIR = Path("./files")
 EXTENSIONS = ["*.pdf", "*.docx", "*.md"]
-DEBUG_MODE = False  # Saves cleaned text to debug/ folder
 
 
 def clean_text(text: str) -> str:
     """Borra consignas repetidas y recorta bibliografía."""
 
-    # Normalize a bit (remove multiple spaces)
+    # Normaliza (elimina espacios múltiples)
     text = " ".join(text.split())
 
-    # 1. Remove repeated phrases
+    # 1. Elimina frases repetidas
     for phrase in COMMON_PHRASES:
-        # Remove regardless of case
+        # Elimina sin importar el caso
         pattern = re.compile(re.escape(phrase), re.IGNORECASE)
         text = pattern.sub("", text)
 
-    # 2. Cut Bibliography
+    # 2. Recorta bibliografía
     text_lower = text.lower()
     cut_position = -1
 
     for marker in END_MARKERS:
-        pos = text_lower.rfind(marker)  # Find the last occurrence
-        # If found and it's in the last 20% of the document (to avoid false cuts at the start)
+        pos = text_lower.rfind(marker)  # Busca la última ocurrencia
+        # Si se encuentra y está en el último 20% del documento (para evitar corte falso al inicio)
         if pos != -1 and pos > len(text) * 0.5:
             if cut_position == -1 or pos < cut_position:
                 cut_position = pos
@@ -151,8 +150,8 @@ def document_level_similarity(
     texts: List[str], filenames: List[str]
 ) -> Tuple[List, List]:
     """
-    Perform document-level TF-IDF similarity analysis.
-    Returns: (similarity_matrix, suspicious_pairs)
+    Realiza análisis de similitud TF-IDF a nivel de documento.
+    Retorna: (similarity_matrix, suspicious_pairs)
     """
     print("--- Calculando similitudes (TF-IDF) ---")
     vectorizer = TfidfVectorizer(
@@ -180,8 +179,8 @@ def sentence_level_analysis(
     raw_texts: Dict[str, str], filenames: List[str]
 ) -> List[Tuple[str, str, float, str, Dict]]:
     """
-    Perform sentence-level plagiarism analysis on all pairs.
-    Returns: list of (file1, file2, sentence_score, detection_type, match_stats)
+    Realiza análisis de plagio a nivel de oraciones.
+    Retorna: lista de (file1, file2, sentence_score, detection_type, match_stats)
     """
     print("--- Análisis a nivel de oraciones ---")
     suspicious_pairs = []
@@ -216,7 +215,7 @@ def sentence_level_analysis(
             )
 
             if is_plagiarism:
-                # Use coverage as pseudo-score for sorting
+                # Usa coverage como pseudo-score para ordenar
                 score = match_stats["coverage"]
                 suspicious_pairs.append(
                     (file1, file2, score, "sentence-level", match_stats)
@@ -232,13 +231,15 @@ def smart_mode_analysis(
     similarity_matrix: List,
 ) -> List[Tuple[str, str, float, str, Optional[Dict]]]:
     """
-    Smart mode: Run sentence-level only on pairs in the gray zone (40-70%).
-    Returns: combined list of suspicious pairs
+    Smart mode: Realiza análisis por fases.
+    - Fase 1: Análisis a nivel de documento (TF-IDF)
+    - Fase 2: Análisis a nivel de oraciones (sentence-level)
+    Retorna: lista de pares sospechosos
     """
     print("--- Modo inteligente: análisis por fases ---")
     suspicious_pairs = []
 
-    # Phase 1: Document-level (already done, use similarity_matrix)
+    # Fase 1: Document-level (ya hecho, usa similarity_matrix)
     print("   Fase 1: TF-IDF completo")
     candidates_for_phase2 = []
 
@@ -255,7 +256,7 @@ def smart_mode_analysis(
                 # Gray zone - candidate for sentence-level
                 candidates_for_phase2.append((i, j, filenames[i], filenames[j]))
 
-    # Phase 2: Sentence-level on gray zone
+    # Fase 2: Sentence-level en los pares sospechosos
     print(
         f"   Fase 2: Análisis de oraciones en {len(candidates_for_phase2)} pares sospechosos"
     )
@@ -290,8 +291,8 @@ def smart_mode_analysis(
 
 def select_detection_mode() -> str:
     """
-    Interactive mode selection menu.
-    Returns the selected mode or the default from config.
+    Menu interactivo para seleccionar el modo de detección.
+    Retorna el modo seleccionado o el default de config.
     """
     print(f"\n{'=' * 80}")
     print("DETECTOR DE PLAGIO - Selección de Modo")
@@ -311,14 +312,22 @@ def select_detection_mode() -> str:
     print(
         "Presioná Enter para usar el modo por defecto, o escribí el número/nombre del modo:\n"
     )
+    print("\nO escribí '0' o 'exit' para salir\n")
 
-    user_input = input("Selección (1-4 o fast/thorough/hybrid/smart): ").strip().lower()
+    user_input = (
+        input("Selección (0/1-4 o fast/thorough/hybrid/smart/exit): ").strip().lower()
+    )
 
-    # If empty, use default
+    # Si el usuario escribe '0' o 'exit', sale
+    if user_input in ["0", "exit"]:
+        print("\nSaliendo del script, ¡hasta luego!\n")
+        exit()
+
+    # Si el usuario escribe Enter, usa el modo por defecto
     if not user_input:
         return DETECTION_MODE
 
-    # Map number to mode
+    # Mapeo de números a nombres de modos
     mode_map = {
         "1": "fast",
         "2": "thorough",
@@ -374,7 +383,7 @@ def analyze_similarities() -> None:
         content = extract_text(file)
         raw_content = extract_raw_text(file)
 
-        # Filter texts that are empty after cleaning
+        # Filtra los textos que están vacíos después de la limpieza
         if content and len(content.strip()) > 50:
             texts.append(content)
             filename = file.name
@@ -392,21 +401,21 @@ def analyze_similarities() -> None:
 
     suspicious_pairs = []
 
-    # Execute according to mode
+    # Ejecuta según el modo
     if mode == "fast":
-        # Fast mode: Only TF-IDF
+        # Modo rápido: Solo TF-IDF
         _, suspicious_pairs = document_level_similarity(texts, filenames)
 
     elif mode == "thorough":
-        # Thorough mode: Only sentence-level
+        # Modo exhaustivo: Solo análisis por oraciones
         suspicious_pairs = sentence_level_analysis(raw_texts, filenames)
 
     elif mode == "hybrid":
-        # Hybrid mode: Both analyses
+        # Modo híbrido: Ambos análisis
         similarity_matrix, doc_pairs = document_level_similarity(texts, filenames)
         sent_pairs = sentence_level_analysis(raw_texts, filenames)
 
-        # Combine both, avoiding duplicates
+        # Combina ambos, evitando duplicados
         suspicious_pairs = doc_pairs
         for sent_pair in sent_pairs:
             # Check if not already in doc_pairs
@@ -419,7 +428,7 @@ def analyze_similarities() -> None:
                 suspicious_pairs.append(sent_pair)
 
     elif mode == "smart":
-        # Smart mode: Two-phase approach
+        # Modo inteligente: Enfoque en dos fases
         similarity_matrix, _ = document_level_similarity(texts, filenames)
         suspicious_pairs = smart_mode_analysis(
             texts, raw_texts, filenames, similarity_matrix
@@ -430,10 +439,10 @@ def analyze_similarities() -> None:
         print("   Modos válidos: fast, thorough, hybrid, smart")
         return
 
-    # Sort by score
+    # Ordena por score
     suspicious_pairs.sort(key=lambda x: x[2], reverse=True)
 
-    # Format output
+    # Formatea la salida
     output_lines = []
     output_lines.append(f"\nResultados de análisis - Modo: {mode.upper()}")
     output_lines.append("=" * 80)
@@ -464,22 +473,22 @@ def analyze_similarities() -> None:
                     )
                     output_lines.extend(report)
 
-            output_lines.append("")  # Empty line between pairs
+            output_lines.append("")  # Línea vacía entre pares
 
-    # Print to console
+    # Imprime en consola
     for line in output_lines:
         try:
             print(line)
         except UnicodeEncodeError:
             print(line.encode("ascii", "replace").decode("ascii"))
 
-    # Save to file
+    # Guarda en archivo
     save_results(
         output_lines,
         "results_" + mode + datetime.now().strftime("_%Y%m%d_%H%M%S") + ".txt",
     )
 
-    # Cleanup debug if requested
+    # Limpieza del debug si se requiere
     if not DEBUG_MODE and Path("debug").exists():
         shutil.rmtree("debug")
 

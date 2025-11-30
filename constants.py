@@ -1,23 +1,20 @@
-# --- CLEANING CONFIGURATION ---
-
-# 1. COMMON PHRASES LIST:
-# Copy here long phrases or questions that appear in ALL papers.
-# The script will remove them before comparing.
+# 1. LISTA DE FRASES COMUNES:
+# Copia aquí frases largas o preguntas que aparecen en todos los documentos.
+# El script las eliminará antes de comparar.
 COMMON_PHRASES = [
-    # Add specific phrases for your TP here, for example:
+    # Agrega frases específicas para tu TP aquí, por ejemplo:
     # "Answer the following questions",
 ]
 
-# 2. Keywords to cut the end of the document
-# If the script finds this, it will ignore everything below it.
+# 2. MARCADORES DE FINALIZACIÓN DE DOCUMENTO:
+# Si el script encuentra esto, ignorará todo lo que esté debajo de él.
 END_MARKERS = [
     "bibliografía",
     "referencias bibliográficas",
-    "fuentes consultadas",
     "bibliografia",
 ]
 
-# Spanish Stop words (basic expandable list)
+# 3. PALABRAS CLAVE EN ESPAÑOL (lista básica expandible)
 STOP_WORDS_ES = [
     "de",
     "la",
@@ -151,3 +148,7 @@ STOP_WORDS_ES = [
     "tiene",
     "tienen",
 ]
+
+
+# --- CONFIGURACIÓN DE DEPURACIÓN ---
+DEBUG_MODE = False  # Guarda el texto limpio en la carpeta debug/

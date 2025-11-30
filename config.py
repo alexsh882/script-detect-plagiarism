@@ -1,47 +1,57 @@
-# --- DETECTION MODE CONFIGURATION ---
-# Available modes: 'fast', 'thorough', 'hybrid', 'smart'
+# --- CONFIGURACIÓN DEL MODO DE DETECCIÓN ---
+# Modos disponibles: 'fast', 'thorough', 'hybrid', 'smart'
 #
-# fast:      Only TF-IDF document-level similarity (fastest, ~seconds)
-#            - Detects exact copies and direct plagiarism
-#            - Misses order-shuffling plagiarism
+# fast:      Solo similitud TF-IDF a nivel de documento (más rápido, ~segundos)
+#            - Detecta copias exactas y plagio directo
+#            - No detecta plagio por reordenamiento
 #
-# thorough:  Only sentence-level matching (slower, ~1-3 min for 47 files)
-#            - Detects order-shuffling and sophisticated plagiarism
-#            - More exhaustive analysis
+# thorough:  Solo análisis por oraciones (lento, ~1-3 min para 47 archivos)
+#            - Detecta plagio por reordenamiento y plagio sofisticado
+#            - Análisis más exhaustivo
 #
-# hybrid:    Both TF-IDF AND sentence-level on all pairs (slowest)
-#            - Detects all types of plagiarism
-#            - Reports both metrics
+# hybrid:    TF-IDF Y análisis por oraciones en todos los pares (más lento)
+#            - Detecta todos los tipos de plagio
+#            - Reporta ambas métricas
 #
-# smart:     Intelligent two-phase approach (recommended, balanced)
-#            - Phase 1: TF-IDF on all pairs
-#            - Phase 2: Sentence-level ONLY on suspicious pairs (40-70% similarity)
-#            - Best balance of speed and accuracy
+# smart:     Enfoque inteligente en dos fases (recomendado, equilibrado)
+#            - Fase 1: TF-IDF en todos los pares
+#            - Fase 2: análisis por oraciones en pares sospechosos (40-70% similarity)
+#            - Mejor equilibrio entre velocidad y precisión
 
-DETECTION_MODE = "smart"  # Change this to: fast, thorough, hybrid, or smart
+# MODO DE DETECCIÓN, opciones disponibles: fast, thorough, hybrid, or smart
+DETECTION_MODE = "smart"  # por defecto
 
-# --- DOCUMENT-LEVEL DETECTION (TF-IDF) ---
+# --- SIMILARITY THRESHOLD (TF-IDF) ---
+# Umbral de similitud para considerar una coincidencia
 DOCUMENT_SIMILARITY_THRESHOLD = 0.70
 
 # --- SENTENCE-LEVEL DETECTION ---
-SENTENCE_MIN_LENGTH = 50  # Minimum chars for a sentence to be analyzed
-SENTENCE_SIMILARITY_THRESHOLD = 0.80  # Minimum similarity to consider a match
-SENTENCE_EXACT_MATCH_THRESHOLD = 0.95  # Threshold to consider a match "exact"
+# Longitud mínima de una oración para ser analizada
+SENTENCE_MIN_LENGTH = 50
 
-# Criteria to flag a pair as plagiarism (ANY condition triggers alert)
-SENTENCE_MIN_EXACT_MATCHES = 5  # Flag if ≥5 exact/near-exact matches
-SENTENCE_MIN_TOTAL_MATCHES = 10  # Flag if ≥10 total matches
-SENTENCE_MIN_COVERAGE = 0.08  # Flag if ≥8% of content matches
+# Similitud mínima para considerar una coincidencia
+SENTENCE_SIMILARITY_THRESHOLD = 0.80
 
-# --- SMART MODE CONFIGURATION ---
-# Range for "suspicious" pairs that trigger sentence-level analysis
-SMART_MODE_MIN_SIMILARITY = (
-    0.35  # Lower bound (lowered to catch order-shuffling plagiarism)
-)
-SMART_MODE_MAX_SIMILARITY = 0.70  # Upper bound (above this already flagged)
+# Umbral para considerar una coincidencia "exacta"
+SENTENCE_EXACT_MATCH_THRESHOLD = 0.95
 
-# --- OUTPUT CONFIGURATION ---
-SHOW_DETAILED_SENTENCE_MATCHES = True  # Show sentence match details in output
-MAX_SENTENCE_MATCHES_TO_SHOW = (
-    5  # Maximum number of sentence matches to display per pair
-)
+# Criterios para "flaggear" un par como plagio (cualquier condición activa alerta)
+SENTENCE_MIN_EXACT_MATCHES = 5  # Flag si ≥5 exact/near-exact coincidencias
+SENTENCE_MIN_TOTAL_MATCHES = 10  # Flag si ≥10 total coincidencias
+SENTENCE_MIN_COVERAGE = 0.08  # Flag si ≥8% de contenido coincide
+
+# --- CONFIGURACIÓN DEL MODO SMART ---
+# Rango para pares sospechosos que activan el análisis por oraciones
+# "Límite inferior" (reducido para detectar plagio por re-ordenamiento)
+SMART_MODE_MIN_SIMILARITY = 0.35
+
+# "Límite superior" (arriba de esto ya se detecta plagio)
+SMART_MODE_MAX_SIMILARITY = 0.70
+
+# --- CONFIGURACIÓN DEL OUTPUT ---
+
+# Mostrar detalles de coincidencia de oraciones en el output
+SHOW_DETAILED_SENTENCE_MATCHES = True
+
+# Ajusta el número máximo de coincidencias de oraciones a mostrar por par.
+MAX_SENTENCE_MATCHES_TO_SHOW = 5
