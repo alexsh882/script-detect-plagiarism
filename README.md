@@ -211,5 +211,7 @@ El **modo SMART** combina ambos: primero filtra candidatos con TF-IDF (rápido),
 
 ---
 
+Author: Alejandro RD - alexsh882
+
 *Desarrollado para facilitar la corrección y garantizar la originalidad de las entregas.*
 *Sistema híbrido con detección de plagio sofisticado mediante análisis a nivel de oraciones.*
