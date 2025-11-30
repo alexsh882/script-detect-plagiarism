@@ -1,31 +1,107 @@
-# 🕵️‍♂️ Detector de Copias de documentos o trabajos prácticos (Anti-Machete 🪓)
+# 🕵️‍♂️ Detector de Plagio con Sistema Híbrido (Anti-Machete 🪓)
 
-Bienvenido al **Detector de Copias**. Este script es una herramienta diseñada para identificar documentos con similitudes sospechosas. Es ideal para analizar lotes de entregas y detectar posibles casos de plagio o "inspiración compartida" no atribuida.
+Bienvenido al **Detector de Plagio**. Esta herramienta avanzada identifica documentos con similitudes sospechosas utilizando un **sistema híbrido de detección** con 4 modos de análisis. Es ideal para analizar lotes de entregas y detectar tanto plagio directo como sofisticado.
 
-## ¿Cómo funciona?
+## 🎯 ¿Cómo funciona?
 
-El script procesa todos los archivos ubicados en la carpeta `files/` (soporta formatos PDF, DOCX y MD) y los compara entre sí utilizando técnicas de procesamiento de lenguaje natural (TF-IDF + Similitud del Coseno).
+El script procesa todos los archivos ubicados en la carpeta `files/` (soporta formatos PDF, DOCX y MD) y los compara utilizando dos técnicas complementarias:
 
-El análisis está optimizado para evitar falsos positivos mediante los siguientes criterios:
+### 1. **Análisis a Nivel de Documento (TF-IDF)**
 
-* **Filtrado de palabras comunes**: Ignora conectores y palabras funcionales ("de", "la", "que", "el", etc.) para centrarse en el contenido relevante.
-* **Análisis de frases (N-gramas)**: Utiliza secuencias de 1 a 3 palabras para detectar coincidencias en oraciones completas, no solo en vocabulario aislado.
-* **Limpieza de estructura**: Elimina consignas repetidas (presentes en todos los TPs) y recorta las secciones de bibliografía para no afectar la comparación.
+- Compara la similitud general entre documentos completos
+- Detecta copias directas y plagio "perezoso"
+- Muy rápido (~segundos)
 
-## Configuración Importante
+### 2. **Análisis a Nivel de Oraciones (Fuzzy Matching)**
 
-Antes de correr el script, abrí el archivo `main.py` y fijate en estas dos listas al principio, que **son específicas para cada Trabajo Práctico**:
+- Compara oraciones individuales entre documentos
+- **Detecta plagio sofisticado**: reordenamiento de párrafos, cambios de estructura
+- Encuentra coincidencias exactas aunque estén en diferente orden
+- Más lento pero más exhaustivo
 
-1. **`COMMON_PHRASES`**: Acá tenés que poner las frases que se repiten en *todos* los trabajos (como las consignas, el nombre de la materia, etc.). Si no las ponés, el script va a pensar que se copiaron porque todos tienen el mismo texto de las preguntas.
-2. **`END_MARKERS`**: Son las palabras clave para saber dónde termina el TP (generalmente "Bibliografía"). El script corta todo lo que viene después de esto para no comparar autores citados.
+## 🚀 Modos de Detección
 
-## Instrucciones de Uso
+Al ejecutar el script, se te presentará un **menú interactivo** para seleccionar el modo:
 
-### 1. Configuración del Entorno
+```
+================================================================================
+DETECTOR DE PLAGIO - Selección de Modo
+================================================================================
 
-Este proyecto utiliza `uv` para la gestión de dependencias, lo que lo hace mucho más rápido y confiable.
+Modos disponibles:
 
-Si no tenés `uv` instalado, podés instalarlo con pip:
+  1. FAST      - Solo TF-IDF (⚡ ~segundos, detecta copias directas)
+  2. THOROUGH  - Solo análisis de oraciones (🔍 ~1-2 min, detecta plagio sofisticado)
+  3. HYBRID    - Ambos análisis (🎯 ~2-3 min, máxima precisión)
+  4. SMART     - Inteligente en 2 fases (🧠 ~20 seg, balanceado) [RECOMENDADO]
+
+Modo por defecto: SMART
+```
+
+### Modo FAST ⚡
+
+- **Velocidad**: ~segundos
+- **Qué detecta**: Copias directas, plagio evidente
+- **Qué NO detecta**: Plagio con reordenamiento
+- **Cuándo usar**: Primera revisión rápida, muchos archivos
+
+### Modo THOROUGH 🔍
+
+- **Velocidad**: ~1-2 minutos (47 archivos)
+- **Qué detecta**: Plagio sofisticado, reordenamiento, párrafos copiados
+- **Cuándo usar**: Sospecha de plagio avanzado
+
+### Modo HYBRID 🎯
+
+- **Velocidad**: ~2-3 minutos
+- **Qué detecta**: TODO - máxima precisión
+- **Cuándo usar**: Análisis final definitivo
+
+### Modo SMART 🧠 (Recomendado)
+
+- **Velocidad**: ~20 segundos
+- **Qué detecta**: Ambos tipos de plagio
+- **Cómo funciona**:
+  - Fase 1: TF-IDF en todos los pares (rápido)
+  - Fase 2: Análisis de oraciones SOLO en pares sospechosos (35-70% similitud)
+- **Cuándo usar**: Uso general, mejor balance velocidad/precisión
+
+## ⚙️ Configuración Importante
+
+### Filtros de Contenido (en `constants.py`)
+
+**Estas configuraciones son específicas para cada Trabajo Práctico**:
+
+1. **`COMMON_PHRASES`**: Frases que se repiten en *todos* los trabajos (consignas, nombre de materia). Si no las ponés, el script va a pensar que se copiaron porque todos tienen el mismo texto.
+
+2. **`END_MARKERS`**: Palabras clave para saber dónde termina el TP (generalmente "Bibliografía"). El script corta todo lo que viene después.
+
+### Parámetros de Detección (en `config.py`)
+
+Podés ajustar la sensibilidad editando `config.py`:
+
+```python
+# Modo por defecto (si solo presionás Enter)
+DETECTION_MODE = "smart"
+
+# Umbral de similitud documental (TF-IDF)
+DOCUMENT_SIMILARITY_THRESHOLD = 0.70  # 70% - bajar para más sensibilidad
+
+# Criterios de detección a nivel de oraciones
+SENTENCE_MIN_EXACT_MATCHES = 5  # Mínimo de coincidencias exactas
+SENTENCE_MIN_TOTAL_MATCHES = 10  # Mínimo de coincidencias totales
+SENTENCE_MIN_COVERAGE = 0.08  # Mínimo 8% de cobertura
+
+# Zona gris para modo SMART
+SMART_MODE_MIN_SIMILARITY = 0.35  # Límite inferior
+SMART_MODE_MAX_SIMILARITY = 0.70  # Límite superior
+```
+
+## 📋 Instrucciones de Uso
+
+### 1. Instalación de `uv`
+
+Si no tenés `uv` instalado:
 
 ```powershell
 pip install uv
@@ -33,32 +109,105 @@ pip install uv
 
 ### 2. Instalación de Dependencias
 
-Para instalar todas las librerías necesarias, simplemente ejecutá:
-
 ```powershell
 uv sync
 ```
 
 ### 3. Carga de Archivos
 
-Colocá todos los trabajos prácticos que querés analizar (archivos .pdf, .docx, .md) dentro de la carpeta `files`.
+Colocá todos los trabajos prácticos que querés analizar (archivos .pdf, .docx, .md) dentro de la carpeta `files/`.
 
 ### 4. Ejecución
-
-Corré el script principal usando `uv`:
 
 ```powershell
 uv run main.py
 ```
 
-## Interpretación de Resultados
+El script mostrará el menú interactivo:
 
-El script mostrará los resultados en la consola y generará un reporte detallado en el archivo `resultados.txt`.
+- Presioná **Enter** para usar el modo por defecto (SMART)
+- O escribí el **número** (1-4) o **nombre** del modo (fast/thorough/hybrid/smart)
 
-* **Verde (✅)**: No se detectaron similitudes significativas.
-* **Rojo (🔴)**: Se encontraron pares de archivos con un alto porcentaje de similitud. Se recomienda revisar estos casos manualmente.
+## 📊 Interpretación de Resultados
 
-Adicionalmente, si la opción `DEBUG_MODE` está activada (`True`), se generará una carpeta `debug/` con el texto procesado de cada archivo. **Por defecto está desactivado** para no llenar el disco de archivos temporales.
+Los resultados se muestran en consola y se guardan automáticamente en `output/results_[modo]_[fecha].txt`.
+
+### Ejemplos de Salida
+
+**Detección por TF-IDF:**
+
+```
+🔴 97.00% :: antonela-lezcano.pdf <--> heredia-2.docx
+   📄 Detectado por: TF-IDF (similitud documental)
+```
+
+**Detección por Análisis de Oraciones:**
+
+```
+🔴 Detectado :: alan-riquelme.pdf <--> tiziano-vera.pdf
+   📝 Detectado por: Análisis de oraciones
+   📊 Sentence-level analysis:
+      - Total matches: 12
+      - Exact matches: 9
+      - Coverage: 12.0%
+      - Sample matches (showing top 5):
+         1. [100%] "El backend permite entrar sin comprobar..."
+         2. [100%] "El error de código es que la ruta quedó expuesta..."
+```
+
+### Indicadores
+
+- **✅ Verde**: No se detectaron similitudes significativas
+- **🔴 Rojo**: Par sospechoso - revisar manualmente
+- **📄**: Detectado por similitud documental (TF-IDF)
+- **📝**: Detectado por análisis de oraciones (plagio sofisticado)
+
+## 🔍 Casos de Uso
+
+### Caso 1: Primera Revisión Rápida
+
+```
+Modo: FAST
+Tiempo: ~segundos
+Detecta: 2 pares de copias directas
+```
+
+### Caso 2: Sospecha de Plagio Sofisticado
+
+```
+Modo: THOROUGH o SMART
+Detecta: Estudiantes que copiaron pero reordenaron las respuestas
+Ejemplo: Párrafos idénticos pero en diferente orden
+```
+
+### Caso 3: Análisis Final
+
+```
+Modo: HYBRID
+Tiempo: ~2-3 min
+Genera reporte completo con todas las métricas
+```
+
+## 🛠️ Debug Mode
+
+Si necesitás ver los textos procesados, activá el modo debug en `main.py`:
+
+```python
+DEBUG_MODE = True
+```
+
+Esto generará una carpeta `debug/` con el texto limpio de cada archivo.
+
+## 📝 Nota sobre TF-IDF vs Sentence-Level
+
+**¿Por qué dos métodos?**
+
+- **TF-IDF** es excelente para detectar similitud general pero **falla cuando los estudiantes reordenan contenido**
+- **Sentence-level** encuentra oraciones idénticas **independientemente del orden**, detectando plagio más sofisticado
+
+El **modo SMART** combina ambos: primero filtra candidatos con TF-IDF (rápido), luego analiza oraciones en casos sospechosos (preciso).
 
 ---
+
 *Desarrollado para facilitar la corrección y garantizar la originalidad de las entregas.*
+*Sistema híbrido con detección de plagio sofisticado mediante análisis a nivel de oraciones.*
