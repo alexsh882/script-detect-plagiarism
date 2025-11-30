@@ -10,6 +10,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from config import (
+    DEBUG_MODE,
     DETECTION_MODE,
     DOCUMENT_SIMILARITY_THRESHOLD,
     MAX_SENTENCE_MATCHES_TO_SHOW,
@@ -22,7 +23,7 @@ from config import (
     SHOW_DETAILED_SENTENCE_MATCHES,
     SMART_MODE_MIN_SIMILARITY,
 )
-from constants import COMMON_PHRASES, DEBUG_MODE, END_MARKERS, STOP_WORDS_ES
+from constants import COMMON_PHRASES, END_MARKERS, STOP_WORDS_ES
 from sentence_detector import (
     find_matching_sentences,
     format_sentence_match_report,

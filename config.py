@@ -21,6 +21,10 @@
 # MODO DE DETECCIÓN, opciones disponibles: fast, thorough, hybrid, or smart
 DETECTION_MODE = "smart"  # por defecto
 
+# --- DEBUG MODE ---
+# Activa el modo debug para ver los textos procesados
+DEBUG_MODE = False
+
 # --- SIMILARITY THRESHOLD (TF-IDF) ---
 # Umbral de similitud para considerar una coincidencia
 DOCUMENT_SIMILARITY_THRESHOLD = 0.70

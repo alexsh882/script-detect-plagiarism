@@ -148,7 +148,3 @@ STOP_WORDS_ES = [
     "tiene",
     "tienen",
 ]
-
-
-# --- CONFIGURACIÓN DE DEPURACIÓN ---
-DEBUG_MODE = False  # Guarda el texto limpio en la carpeta debug/
